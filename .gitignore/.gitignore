@@ -1,3 +1,6 @@
+# prj file not be addted to git
+**/trades.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
