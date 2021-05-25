@@ -7,8 +7,12 @@ from pprint import pprint as pprint
 import pandas as pd
 
 trades = {}
+# jojo
 deposits = {'XXBTZEUR': {'vol': 0.02512599 + 0.00027999, 'cost': 791.5076200000001},
             'EURO': {'vol': 8000, 'cost': 8000}}
+# ben
+# deposits = {'XXBTZEUR': {'vol': 0.01459457 + 0.00002331 + 0.00000004, 'cost': 500.0},
+#             'EURO': {'vol': 2500, 'cost': 2500}}
 
 assets_of_interest = ['XXBTZEUR', 'XETHZEUR', 'ADAEUR', 'XDGEUR']
 # assets_of_interest = ['XETHZEUR']
@@ -111,8 +115,8 @@ for index, row in trades_df.iterrows():
             mytrades[pair].vol -= row['vol']
             mytrades[pair].cost -= row['cost']
 
-print("{1:>12} {2:>12} {2:>12} ".format('asset', 'volume', 'mean price'))
-print("{1:>12} {2:>12} {2:>12} ".format('-----', '------', '----------'))
+print("{0:>12} {1:>12} {2:>12} ".format('asset', 'volume', 'mean price'))
+print("{0:>12} {1:>12} {2:>12} ".format('-----', '------', '----------'))
 for pair in mytrades.keys():
     if pair in assets_of_interest:
         print("{0:>12} {1:>12.6f} {2:>12.2f}".format(mytrades[pair].name, mytrades[pair].vol, mytrades[pair].get_mean_price()))
@@ -122,4 +126,13 @@ for pair in mytrades.keys():
     if pair in assets_of_interest:
         total_cost += mytrades[pair].cost
 
-print("\nAccount overall cost: {0:.2f}".format(total_cost))
+print("\nAccount overall cost: {0:.2f}\n\n".format(total_cost))
+
+print("{0:>12} {1:>12}".format('price', 'profit'))
+print("{0:>12} {1:>12}".format('-----', '------'))
+for pair in mytrades.keys():
+    print(pair)
+    for rais in range(-15, 50, 5):
+        if pair in assets_of_interest:
+            profit = (mytrades[pair].vol * (1 + rais / 100) * mytrades[pair].get_mean_price()) - (mytrades[pair].vol * mytrades[pair].get_mean_price())
+            print("{0:>12.2f} {1:>12.2f}".format((1 + rais / 100)*mytrades[pair].get_mean_price(), profit))
