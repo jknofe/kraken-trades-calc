@@ -68,6 +68,7 @@ class AssetBalanceSheet():
 
     def get_mean_price(self):
         mean_price = None
+        volume = Decimal(0)
         if len(self.pods) > 0:
             cost = Decimal(0)
             volume = Decimal(0)
@@ -76,8 +77,8 @@ class AssetBalanceSheet():
                 volume += pod.volume
             mean_price = Decimal(cost / volume)
         else:
-            mean_price = "None"
-        return mean_price
+            mean_price = Decimal(0)
+        return mean_price, volume
 
     def calc_profit(self, vol, buy_price, sell_price):
         cost_buy = vol * buy_price
@@ -117,7 +118,7 @@ class AssetBalanceSheet():
                 pod_used_dict['profit'] = Decimal(0)
             if volume_left_in_pod == Decimal(0.0):
                 # sell volume will empty this pod completely
-                # print("sell FIST perfectly")
+                # print("sell FITS perfectly")
                 profit = self.calc_profit(volume_to_sell, self.pods[index].price, Order.price)
                 volume_to_sell = Decimal(0)
                 self.pods.pop(index)
@@ -143,9 +144,10 @@ class AssetBalanceSheet():
         # print(order_profit)
         # preprocessin if it was a swap, if so we do not have a loss, we just book the volume out at a zero profit
         if Order.swap is not None:
-            print("SWAP!!!")
+            # print("SWAP!!!")
             for item in self.sells[Order.name]['buy_orders'].keys():
                 self.sells[Order.name]['buy_orders'][item]['profit'] = Decimal(0)
+        print("SELL({}): {:.5f}@{:.2f} profit: {:.2f}".format(Order.pair, Order.volume, Order.price, order_profit))
         return order_profit
 
 
@@ -173,7 +175,7 @@ class CryptoAsset:
             mean_price = (self.cost / self.vol)
         else:
             mean_price = 0
-        return mean_price
+        return Decimal(mean_price)
 
 
 with open('trades.csv', mode='r') as infile:
@@ -187,9 +189,10 @@ for pair in trades_df['pair']:
 pprint(trades.keys())
 
 for pair in trades.keys():
+    # sum off buys
     trades[pair].vol_sum_buy = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'buy')]['vol'].sum()
     trades[pair].cost_sum_buy = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'buy')]['cost'].sum()
-
+    # sum of sells
     trades[pair].vol_sum_sell = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'sell')]['vol'].sum()
     trades[pair].cost_sum_sell = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'sell')]['cost'].sum()
 
@@ -227,7 +230,7 @@ for index, row in trades_df.iterrows():
             virtual_cost = Decimal(-1) * MyAssetBalance['XXBTZEUR'].sell_asset(virtual_sell_order)
             virtual_price = virtual_cost / my_order.volume
             virtual_fee = 0
-            swap_order = Order(my_order.name, 'XETHZEUR', my_order.date, virtual_price, virtual_cost, virtual_fee, my_order.cost, my_order)
+            swap_order = Order(my_order.name, 'XETHZEUR', my_order.date, virtual_price, virtual_cost, virtual_fee, my_order.volume, my_order)
             MyAssetBalance['XETHZEUR'].add_buy_order(swap_order)
         else:
             MyAssetBalance[pair].add_buy_order(my_order)
@@ -248,19 +251,18 @@ for index, row in trades_df.iterrows():
         pass
 
 print("AssetBalanceSheet:\n==================\n")
-for pair in assets_of_interest:
-    profit = 0
-    for sell_order in MyAssetBalance[pair].sells.keys():
-        for buy_order in MyAssetBalance[pair].sells[sell_order]['buy_orders'].keys():
-            profit += MyAssetBalance[pair].sells[sell_order]['buy_orders'][buy_order]['profit']
-    print("{}: {:.2f} with mean_price: {}".format(pair, profit, MyAssetBalance[pair].get_mean_price()))
+for pair in MyAssetBalance.keys():
+    profit = Decimal(0)
+    volume = Decimal(0)
+    if pair in assets_of_interest:
+        for sell_order in MyAssetBalance[pair].sells.keys():
+            for buy_order in MyAssetBalance[pair].sells[sell_order]['buy_orders'].keys():
+                profit += MyAssetBalance[pair].sells[sell_order]['buy_orders'][buy_order]['profit']
+        mean, volume = MyAssetBalance[pair].get_mean_price()
+        print("{:>8}: {:>8.7f} @ {:.3f} profit: {}".format(pair, volume, mean, profit))
 
 print("\n\n")
-for pod in MyAssetBalance['XXBTZEUR'].pods:
-    print(pod)
-    print("\n")
 
-for order_name in MyAssetBalance['XXBTZEUR'].sells.keys():
-    pprint(MyAssetBalance['XXBTZEUR'].sells[order_name])
-    print("\n")
+pprint(MyAssetBalance['XETHZEUR'].sells)
+
 exit()
