@@ -3,24 +3,20 @@
 #
 #   trend class
 #
+import argparse
+import pandas as pd
 from decimal import Decimal
+from pprint import pprint as pprint
 def decimal_from_value(value):
     return Decimal(value)
-from pprint import pprint as pprint
-import pandas as pd
+
 
 trades = {}
 MyAssetBalance = {}
-# jojo
-# deposits = {'XXBTZEUR': {'vol': 0.0251259900 + 0.0002869227, 'cost': 791.5076200000001},
-#             'EURO': {'vol': 10000, 'cost': 10000}}
-deposits = {'XXBTZEUR': {'price': Decimal("31145.8869"), 'cost': Decimal("791.5076200000001"), 'fee': Decimal("0.0"), 'vol': Decimal("0.02541291")}}
-deposits = {'XXBTZEUR': {'price': Decimal("28665.80000"), 'cost': Decimal("791.5076200000001"), 'fee': Decimal("0.0"), 'vol': Decimal("0.02541291")}}
-# ben
-# deposits = {'XXBTZEUR': {'vol': 0.01459457 + 0.00002331 + 0.00000004, 'cost': 500.0},
-#             'EURO': {'vol': 2500, 'cost': 2500}}
 
-assets_of_interest = ['XXBTZEUR', 'XETHZEUR', 'ADAEUR', 'XDGEUR']
+deposits = {'XXBTZEUR': {'price': Decimal("20000"), 'cost': Decimal("2000"), 'fee': Decimal("0.0"), 'vol': Decimal("0.1")}}
+
+assets_of_interest = ['XXBTZEUR', 'XETHZEUR', 'ADAEUR', 'XDGEUR', 'XXLMZEUR']
 # assets_of_interest = ['XETHZEUR']
 asset_swaps = ['XETHXXBT', 'XXDGXXBT']
 
@@ -178,7 +174,12 @@ class CryptoAsset:
         return Decimal(mean_price)
 
 
-with open('trades.csv', mode='r') as infile:
+parser = argparse.ArgumentParser(description='Description of your program')
+parser.add_argument('-f', '--file', help='trades.csv export from kraken', default='trades.csv')
+args = vars(parser.parse_args())
+
+
+with open(args['file'], mode='r') as infile:
     trades_df = pd.read_csv(infile, converters={'price': decimal_from_value, 'cost': decimal_from_value, 'fee': decimal_from_value, 'vol': decimal_from_value})
 
 
