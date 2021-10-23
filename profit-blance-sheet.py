@@ -193,9 +193,19 @@ for pair in trades.keys():
     # sum off buys
     trades[pair].vol_sum_buy = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'buy')]['vol'].sum()
     trades[pair].cost_sum_buy = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'buy')]['cost'].sum()
+    trades[pair].fee_sum_buy = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'buy')]['fee'].sum()
     # sum of sells
     trades[pair].vol_sum_sell = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'sell')]['vol'].sum()
     trades[pair].cost_sum_sell = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'sell')]['cost'].sum()
+    trades[pair].fee_sum_sell = trades_df.loc[(trades_df['pair'] == pair) & (trades_df['type'] == 'sell')]['fee'].sum()
+
+
+for pair in trades.keys():
+    print(pair)
+    pprint(trades[pair].fee_sum_buy)
+    pprint(trades[pair].fee_sum_sell)
+
+# exit()
 
 # all asset swaps create additional volume
 for pair in trades.keys():
