@@ -255,6 +255,13 @@ for index, row in trades_df.iterrows():
             virtual_fee = 0
             swap_order = Order(my_order.name, 'XXBTZEUR', my_order.date, virtual_price, virtual_cost, virtual_fee, my_order.cost, my_order)
             MyAssetBalance['XXBTZEUR'].add_buy_order(swap_order)
+        elif pair == 'XETHXXBT':
+            virtual_sell_order = Order('virtual_sell_XETHXXBT', 'XETHZEUR', my_order.date, Decimal(0), Decimal(0), Decimal(0), my_order.volume, my_order)
+            virtual_cost = Decimal(-1) * MyAssetBalance['XETHZEUR'].sell_asset(virtual_sell_order)
+            virtual_price = virtual_cost / my_order.cost
+            virtual_fee = 0
+            swap_order = Order(my_order.name, 'XETHZEUR', my_order.date, virtual_price, virtual_cost, virtual_fee, my_order.cost, my_order)
+            MyAssetBalance['XXBTZEUR'].add_buy_order(swap_order)
         else:
             MyAssetBalance[pair].sell_asset(my_order)
     else:
